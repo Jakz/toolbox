@@ -44,10 +44,15 @@ public:
   
   path removeLast() const;
   path parent() const { return removeLast(); }
+  path removeAllButFirst() const;
+  std::pair<path, path> splitParentAndFilename() const;
+
+  path makeRelative() const;
   
   std::string filename() const;
 
-  const std::string& data() { return _data; }
+  const std::string& data() const { return _data; }
+  const std::string& str() const { return _data; }
   const char* c_str() const { return _data.c_str(); }
   
   friend std::ostream& operator<<(std::ostream& os, const class path& path) { os << path._data; return os; }

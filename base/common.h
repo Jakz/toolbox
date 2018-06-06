@@ -284,6 +284,12 @@ public:
     std::copy(data, data + LENGTH, _data.begin());
   }
   
+  wrapped_array(const std::vector<byte>& data)
+  {
+    assert(data.size() == LENGTH);
+    std::copy(data.begin(), data.begin() + LENGTH, _data.begin());
+  }
+  
   const byte* inner() const { return _data.data(); }
   byte* inner() { return _data.data(); }
   
@@ -295,8 +301,11 @@ public:
     return strings::fromByteArray(_data.data(), LENGTH);
   }
   
-  std::ostream& operator<<(std::ostream& o) const { o << operator std::string(); return o; }
   bool operator==(const std::string& string) const { return operator std::string() == string; }
+  bool operator==(const wrapped_array<LENGTH>& other) const { return _data == other._data; }
+  bool operator!=(const wrapped_array<LENGTH>& other) const { return _data != other._data; }
+
+  std::ostream& operator<<(std::ostream& o) const { o << operator std::string(); return o; }
 };
 
 template<typename T>
