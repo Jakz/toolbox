@@ -22,4 +22,6 @@ public:
   bool createFolder(const path& folder, bool intermediate = true) const;
   
   bool deleteFile(const path& path) const;
+  
+  bool fallocate(const path& path, size_t size) const;
 };

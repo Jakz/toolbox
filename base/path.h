@@ -195,6 +195,12 @@ public:
   }
 
   operator bool() const { return _file != nullptr; }
+  
+  int fd() const
+  {
+    assert(_file);
+    return fileno(_file);
+  }
 };
 
 using path_extension = std::string;

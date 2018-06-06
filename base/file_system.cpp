@@ -11,6 +11,7 @@ const FileSystem* FileSystem::i()
 #include <dirent.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 void scanFolder(const path& root, const std::function<void(const path& path)>& lambda, bool recursive = true)
 {
@@ -134,6 +135,65 @@ bool FileSystem::deleteFile(const path& path) const
   bool isDirectory = existsAsFolder(path);
   bool success = isDirectory ? internalDeleteDirectory(path) :  (remove(path.c_str()) == 0);
   return success;
+}
+
+bool FileSystem::fallocate(const path &path, size_t aLength) const
+{
+  file_handle handle(path, file_mode::WRITING);
+  int fd = handle.fd();
+  
+#if defined(HAVE_POSIX_FALLOCATE)
+  return posix_fallocate(fd, 0, aLength) == 0;
+#elif defined(XP_WIN)
+  return PR_Seek64(aFD, aLength, PR_SEEK_SET) == aLength
+  && 0 != SetEndOfFile(aFD);
+#elif defined(__APPLE__)
+  fstore_t store = {F_ALLOCATECONTIG, F_PEOFPOSMODE, 0, (off_t)aLength};
+  // Try to get a continous chunk of disk space
+  int ret = fcntl(fd, F_PREALLOCATE, &store);
+  if(-1 == ret){
+    // OK, perhaps we are too fragmented, allocate non-continuous
+    store.fst_flags = F_ALLOCATEALL;
+    ret = fcntl(fd, F_PREALLOCATE, &store);
+    if (-1 == ret)
+      return false;
+  }
+  return 0 == ftruncate(fd, aLength);
+#elif defined(XP_UNIX)
+  // The following is copied from fcntlSizeHint in sqlite
+  /* If the OS does not have posix_fallocate(), fake it. First use
+   ** ftruncate() to set the file size, then write a single byte to
+   ** the last byte in each block within the extended region. This
+   ** is the same technique used by glibc to implement posix_fallocate()
+   ** on systems that do not have a real fallocate() system call.
+   */
+  struct stat buf;
+  int fd = PR_FileDesc2NativeHandle(aFD);
+  if (fstat(fd, &buf))
+    return false;
+  
+  if (buf.st_size >= aLength)
+    return false;
+  
+  const int nBlk = buf.st_blksize;
+  
+  if (!nBlk)
+    return false;
+  
+  if (ftruncate(fd, aLength))
+    return false;
+  
+  int nWrite; // Return value from write()
+  PRInt64 iWrite = ((buf.st_size + 2 * nBlk - 1) / nBlk) * nBlk - 1; // Next offset to write to
+  do {
+    nWrite = 0;
+    if (PR_Seek64(aFD, iWrite, PR_SEEK_SET) == iWrite)
+      nWrite = PR_Write(aFD, "", 1);
+    iWrite += nBlk;
+  } while (nWrite == 1 && iWrite < aLength);
+  return nWrite == 1;
+#endif
+  return false;
 }
 
 #else
