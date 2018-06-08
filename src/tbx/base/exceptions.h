@@ -17,6 +17,16 @@ namespace exceptions
     
   };
   
+  class messaged_exception : public exception
+  {
+  private:
+    std::string _message;
+    
+  public:
+    messaged_exception(const std::string& message) : _message(message) { }
+    const char* what() const noexcept override { return _message.c_str(); }
+  };
+  
   class file_not_found : public exception
   {
   private:
@@ -112,4 +122,7 @@ namespace exceptions
     missing_source_file_exception(const std::string& what) : _what(what) { }
     const char* what() const noexcept override { return _what.c_str(); }
   };
+
+  using file_format_error = messaged_exception;
+
 }

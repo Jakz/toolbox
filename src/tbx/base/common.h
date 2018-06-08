@@ -211,6 +211,7 @@ namespace strings
   std::string humanReadableSize(size_t bytes, bool si, u32 p = 1);
   bool isPrefixOf(const std::string& string, const std::string& prefix);
   std::string tolower(const std::string &text);
+  inline bool caseInsensitiveEqual(const std::string& t1, const std::string& t2) { return tolower(t1) == tolower(t2); }
   
   std::vector<byte> toByteArray(const std::string& string);
   std::string fromByteArray(const byte* data, size_t length);
