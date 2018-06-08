@@ -1,6 +1,6 @@
 #pragma once
 
-#include "base/common.h"
+#include "tbx/base/common.h"
 
 constexpr size_t END_OF_STREAM = 0xFFFFFFFFFFFFFFFFLL;
 

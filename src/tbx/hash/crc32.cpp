@@ -2,8 +2,8 @@
 
 #include "hash.h"
 
-#include "base/common.h"
-#include "base/exceptions.h"
+#include "tbx/base/common.h"
+#include "tbx/base/exceptions.h"
 
 namespace hash
 {
