@@ -128,6 +128,16 @@ bool FileSystem::internalDeleteDirectory(const path& path) const
   return success;
 }
 
+#include <fstream>
+
+bool FileSystem::copy(const path &from, const path &to) const
+{
+  std::ifstream  src(from.str(), std::ios::binary);
+  std::ofstream  dst(to.str(),   std::ios::binary);
+  dst << src.rdbuf();
+  return true;
+}
+
 bool FileSystem::deleteFile(const path& path) const
 {
   TRACE_FS("%p: deleting file %s", this, path.c_str());

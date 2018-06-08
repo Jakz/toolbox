@@ -36,6 +36,8 @@ public:
   path append(const path& other) const;
   path operator+(const path& other) const { return this->append(other); }
   
+  inline path& operator+=(const path& other) { *this = append(other); return *this; }
+  
   inline bool operator!=(const path& other) const { return !(_data == other._data); }
   inline bool operator==(const path& other) const { return _data == other._data; }
   

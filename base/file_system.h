@@ -19,6 +19,8 @@ public:
   bool existsAsFolder(const path& path) const;
   bool existsAsFile(const path& path) const;
   
+  bool copy(const path& from, const path& to) const;
+  
   bool createFolder(const path& folder, bool intermediate = true) const;
   
   bool deleteFile(const path& path) const;
