@@ -108,3 +108,10 @@ path path::makeRelative() const
 {
   return _data[0] == SEPARATOR ? path(&_data[1]) : *this;
 }
+
+size_t path::length() const
+{
+  struct stat sb;
+  stat(_data.c_str(), &sb);
+  return sb.st_size;
+}
