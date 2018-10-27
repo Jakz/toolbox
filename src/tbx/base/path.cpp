@@ -27,6 +27,8 @@ bool path::isAbsolute() const
   return !_data.empty() && _data[0] == SEPARATOR;
 }
 
+bool path::isFolder() const { return FileSystem::i()->existsAsFolder(*this); }
+
 bool path::exists() const
 {
   return FileSystem::i()->existsAsFile(*this) || FileSystem::i()->existsAsFolder(*this);

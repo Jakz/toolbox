@@ -27,6 +27,7 @@ public:
   path(const char* data);
   path(const std::string& data);
   
+  bool isFolder() const;
   bool exists() const;
   size_t length() const;
   
@@ -81,6 +82,8 @@ public:
   bool operator==(const path& path) const { return _parent.append(_child) == path; }
   bool operator==(const relative_path& other) const { return _parent == other._parent && _child == other._child; }
 };
+
+using path_filter = std::function<bool(const path&)>;
 
 enum class file_mode
 {
