@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_set>
 #include <functional>
+#include <memory>
 
 #if _WIN32
 #include <codecvt>

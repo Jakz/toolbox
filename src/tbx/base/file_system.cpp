@@ -158,7 +158,7 @@ bool FileSystem::fallocate(const path &path, size_t aLength) const
   return PR_Seek64(aFD, aLength, PR_SEEK_SET) == aLength
   && 0 != SetEndOfFile(aFD);
 #elif defined(__APPLE__)
-  fstore_t store = {F_ALLOCATECONTIG, F_PEOFPOSMODE, 0, (off_t)aLength};
+  fstore_t store = {F_ALLOCATECONTIG, F_PEOFPOSMODE, 0, (roff_t)aLength};
   // Try to get a continous chunk of disk space
   int ret = fcntl(fd, F_PREALLOCATE, &store);
   if(-1 == ret){

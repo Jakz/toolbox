@@ -24,8 +24,8 @@ struct data_sink
 
 struct seekable
 {
-  virtual void seek(off_t position) = 0;
-  virtual off_t tell() const = 0;
+  virtual void seek(roff_t position) = 0;
+  virtual roff_t tell() const = 0;
   virtual size_t size() const = 0;
   virtual bool isSeekable() const { return true; }
   
@@ -90,17 +90,17 @@ class seekable_source_slice : public seekable_data_source
 {
 private:
   seekable_data_source* const _source;
-  off_t _position;
+  roff_t _position;
   
 public:
   seekable_source_slice(seekable_data_source* source) : _source(source) { }
   
-  virtual void seek(off_t position) { _position = position; }
-  virtual off_t tell() const { return _position; }
+  virtual void seek(roff_t position) { _position = position; }
+  virtual roff_t tell() const { return _position; }
   virtual size_t size() const { return _source->size(); }
   virtual size_t read(byte* dest, size_t amount)
   {
-    off_t mark = _source->tell();
+    roff_t mark = _source->tell();
     _source->seek(_position);
     size_t effective = _source->read(dest, amount);
     _source->seek(mark);

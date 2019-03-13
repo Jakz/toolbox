@@ -3,6 +3,7 @@
 #define _FILE_OFFSET_BITS 64
 #include <cstdint>
 #include <cmath>
+#include <algorithm>
 
 #include <string>
 
@@ -21,6 +22,8 @@ using offset_t = u32;
 
 using s32 = int32_t;
 using s64 = int64_t;
+
+using roff_t = int64_t;
 
 #if defined(__BYTE_ORDER) && __BYTE_ORDER == __BIG_ENDIAN || \
 \

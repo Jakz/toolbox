@@ -31,7 +31,7 @@ public:
     return effective;
   }
   
-  void seek(off_t position) override
+  void seek(roff_t position) override
   {
     assert(_handle);
     TRACE_F("%p: file_data_source::seek(%lu)", this, position);
@@ -39,7 +39,7 @@ public:
     _handle.seek(position, SEEK_SET);
   }
   
-  off_t tell() const override
+  roff_t tell() const override
   {
     assert(_handle);
     return _handle.tell();
@@ -116,9 +116,9 @@ public:
     _position = 0;
   }
   
-  void seek(off_t offset) override { getPage(offset / _pageSize); _position = offset; }
+  void seek(roff_t offset) override { getPage(offset / _pageSize); _position = offset; }
   size_t size() const override { return _length; }
-  off_t tell() const override { return _position; }
+  roff_t tell() const override { return _position; }
   
   size_t read(byte* dest, size_t amount) override
   {

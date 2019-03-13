@@ -18,7 +18,7 @@ class memory_buffer : public seekable_data_source, public data_sink
 private:
   byte* _data;
 
-  mutable off_t _position;
+  mutable roff_t _position;
   size_t _capacity;
   size_t _size;
   
@@ -32,7 +32,7 @@ public:
 
   memory_buffer() : memory_buffer(0)
   {
-    static_assert(sizeof(off_t) == 8, "");
+    static_assert(sizeof(roff_t) == 8, "");
     static_assert(sizeof(size_t) == 8, "");
   }
   
@@ -101,7 +101,7 @@ public:
   size_t capacity() const { return _capacity; }
   
   size_t toRead() const { return _size - _position; }
-  off_t position() const { return _position; }
+  roff_t position() const { return _position; }
   bool eob() const { return _position == _size; }
   
   
@@ -114,17 +114,17 @@ public:
   const byte* data() const { return _data; }
   byte* data() { return _data; }
   
-  off_t tell() const override { return _position; }
+  roff_t tell() const override { return _position; }
   
-  void seek(off_t offset) override { seek(offset, Seek::SET); }
-  void seek(off_t offset, Seek origin)
+  void seek(roff_t offset) override { seek(offset, Seek::SET); }
+  void seek(roff_t offset, Seek origin)
   {
     TRACE_MB("%p: memory_buffer::seek(%lu, %d)", this, offset, origin);
 
     switch (origin) {
-      case Seek::CUR: _position += offset; _position = std::max(0LL, _position); break;
-      case Seek::SET: _position = std::max(0LL, offset); break;
-      case Seek::END: _position = _size + offset; _position = std::max(0LL, _position); break;
+      case Seek::CUR: _position += offset; _position = std::max(roff_t(0), _position); break;
+      case Seek::SET: _position = std::max(roff_t(0), offset); break;
+      case Seek::END: _position = _size + offset; _position = std::max(roff_t(0), _position); break;
     }
   }
     
@@ -173,7 +173,7 @@ public:
   template<typename T> size_t read(T& dest) { return read(&dest, sizeof(T), 1); }
   size_t read(void* data, size_t size, size_t count)
   {
-    size_t available = std::min(_size - _position, (off_t)size*count);
+    size_t available = std::min(_size - _position, (roff_t)size*count);
     std::copy(_data + _position, _data + _position + available, (byte*)data);
     _position += available;
     return available;
@@ -280,17 +280,17 @@ class data_reference
 {
 private:
   memory_buffer* _buffer;
-  off_t _position;
-  data_reference(memory_buffer& buffer, off_t position) : _buffer(&buffer), _position(position) { }
+  roff_t _position;
+  data_reference(memory_buffer& buffer, roff_t position) : _buffer(&buffer), _position(position) { }
   
 public:
   data_reference() : _buffer(nullptr), _position(0) { }
-  operator off_t() const { return _position; }
+  operator roff_t() const { return _position; }
 
   void write(const T& value)
   {
     assert(_buffer);
-    off_t mark = _buffer->tell();
+    roff_t mark = _buffer->tell();
     _buffer->seek(_position, Seek::SET);
     _buffer->write(&value, sizeof(T), 1);
     _buffer->seek(mark, Seek::SET);
@@ -304,19 +304,19 @@ class array_reference
 {
 private:
   memory_buffer* _buffer;
-  off_t _position;
+  roff_t _position;
   size_t _count;
-  array_reference(memory_buffer& buffer, off_t position, size_t count) : _buffer(&buffer), _position(position), _count(count) { }
+  array_reference(memory_buffer& buffer, roff_t position, size_t count) : _buffer(&buffer), _position(position), _count(count) { }
   
 public:
   array_reference() : _buffer(nullptr), _position(0) { }
-  operator off_t() const { return _position; }
+  operator roff_t() const { return _position; }
   size_t count() const { return _count; }
   
   void write(const T& value, size_t index)
   {
     assert(_buffer);
-    off_t mark = _buffer->tell();
+    roff_t mark = _buffer->tell();
     _buffer->seek(_position + sizeof(T)*index, Seek::SET);
     _buffer->write(&value, sizeof(T), 1);
     _buffer->seek(mark, Seek::SET);
@@ -325,7 +325,7 @@ public:
   void read(T& value, size_t index)
   {
     assert(_buffer);
-    off_t mark = _buffer->tell();
+    roff_t mark = _buffer->tell();
     _buffer->seek(_position + sizeof(T)*index, Seek::SET);
     _buffer->read(value);
     _buffer->seek(mark, Seek::SET);
@@ -336,7 +336,7 @@ public:
 
 template<typename T> data_reference<T> memory_buffer::reserve()
 {
-  off_t mark = tell();
+  roff_t mark = tell();
   assert(mark == _size);
   reserve(sizeof(T));
   //_size += sizeof(T);
@@ -345,7 +345,7 @@ template<typename T> data_reference<T> memory_buffer::reserve()
 
 template<typename T> array_reference<T> memory_buffer::reserveArray(size_t size)
 {
-  off_t mark = tell();
+  roff_t mark = tell();
   assert(mark == _size);
   reserve(sizeof(T)*size);
   //_size += sizeof(T)*size;
