@@ -6,12 +6,11 @@ const FileSystem* FileSystem::i()
   return &instance;
 }
 
-#if defined(__APPLE__)
+#if defined(__APPLE__) | defined(__unix__)
 
 #include <dirent.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <fcntl.h>
 
 void scanFolder(const path& root, const std::function<void(const path& path)>& lambda, bool recursive = true)
 {
